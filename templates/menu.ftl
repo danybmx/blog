@@ -16,7 +16,7 @@
         <div class="navbar-item">
           <div class="field is-grouped">
             <p class="control">
-              <a class="button is-invert is-outlined is-dark" target="_blank" href="https://www.dpstudios.es">
+              <a class="button is-invert is-outlined is-dark" target="_blank" href="https://dpstudios.es">
                 <span class="icon">
                   <i class="fas fa-heart"></i>
                 </span>
@@ -37,7 +37,7 @@
               </a>
             </p>
             <p class="control">
-              <a class="button is-invert is-outlined is-dark" target="_blank" href="https://www.twitter.com/danybmx">
+              <a class="button is-invert is-outlined is-dark" target="_blank" href="https://twitter.com/danybmx">
                 <span class="icon">
                   <i class="fab fa-twitter"></i>
                 </span>
@@ -47,7 +47,7 @@
               </a>
             </p>
             <p class="control">
-              <a class="button is-invert is-outlined is-dark" target="_blank" href="https://www.github.com/danybmx">
+              <a class="button is-invert is-outlined is-dark" target="_blank" href="https://github.com/danybmx/blog">
                 <span class="icon">
                   <i class="fab fa-github"></i>
                 </span>
