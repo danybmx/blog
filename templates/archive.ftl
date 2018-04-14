@@ -26,6 +26,10 @@
 			</ul>
 		</div>
 
+		<hr>
+
+		<p>Go back to the <a href="${content.rootpath}">index</a>.</p>
+		
 	</div>
 	
 <#include "footer.ftl">
