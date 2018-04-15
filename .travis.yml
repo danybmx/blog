@@ -1,9 +1,7 @@
 language: java
 jdk:
 - oraclejdk8
-env:
-  global:
-  - GIT_NAME="dpStudios - CI"
-  - GIT_EMAIL="ci@dpstudios.es"
+before_install:
+- openssl aes-256-cbc -K $encrypted_1ecfa12135cc_key -iv $encrypted_1ecfa12135cc_iv -in blog-travis.enc -out blog-travis -d
 script:
-- ./gradlew bakeAndPush
+- ./gradlew bakeAndPush -Dorg.ajoberstar.grgit.auth.ssh.private=./blog-travis
