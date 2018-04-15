@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>JBake</title>
+    <link>https://danybmx.github.io/blog/</link>
+    <atom:link href="https://danybmx.github.io/blog//feed.xml" rel="self" type="application/rss+xml" />
+    <description>JBake Bootstrap Template</description>
+    <language>en-gb</language>
+    <pubDate>Sun, 15 Apr 2018 13:12:30 +0200</pubDate>
+    <lastBuildDate>Sun, 15 Apr 2018 13:12:30 +0200</lastBuildDate>
+
+    <item>
+      <title>A new attemp...</title>
+      <link>https://danybmx.github.io/blog//blog/2018/a-new-attemp.html</link>
+      <pubDate>Sat, 14 Apr 2018 00:00:00 +0200</pubDate>
+      <guid isPermaLink="false">blog/2018/a-new-attemp.html</guid>
+      	<description>
+	&lt;p&gt;Well, this is not my first attempt to create a blog, it&apos;s like my third... but this last year was a new beginning in my life in what refers to work. I quit my job at the end of 2016 and start a new company. I was so scared, there were more than 10 years working in the &quot;same&quot; company, working in the way that I want because I have no team... It was only me and two more people, but I supported all the technical part.&lt;/p&gt;
+&lt;p&gt;I&apos;ve created an invoicing system from the scratch in PHP for the company that should be able to work in the way that they want, manage stock, generate stickers, calculates OEM products needed to create final products... and a lot features more. Also, I&apos;ve got the opportunity to work doing some graphic design, photography, animation and even 3D. It was pretty nice, I&apos;ve learned a lot but... I miss something, a team.&lt;/p&gt;
+&lt;p&gt;So, mid-2016, I&apos;ve fixed a mate website (a WordPress that was &quot;hacked&quot;) and he tells me, &quot;I knew a company that was searching for a JS developer&quot;, I was interested so I&apos;ve contacted the company... They were looking for a Java Developer, not JS... and well, my knowledge of Java was pretty low, anyway I went to the technical test and It wasn&apos;t too bad... I need to say that it was my first job interview and I was so nervous but they allow me (and everyone) to use the internet, that helps me a lot. Finally I pass the test but I rejected the job because I didn&apos;t realise that it was for a Junior and the salary was much lower than in the current job (well... I think that the main reason was that I&apos;m really scared and I should say that was a good salary for a Junior job offer).&lt;/p&gt;
+&lt;p&gt;3 Months later, the company gets in touch with me again (THANKS), they have a job offer for a Senior developer and arrange me an interview with somebody of the team in which I&apos;ll join. I went and she explains to me what they do, how they work and how the company takes care of their employees, it was just amazing and helps me a lot to take my decision... a few days later I&apos;ve communicated my current company that I&apos;ll leave in about 15 days. Those days were really long for me... I was scared of how things will go... it will be a change from the freedom where I can write programs in the language that I want, without documentation (cause never has time), and working alone to something completely different, a well organised team, focused in Oracle products and Java (JVM), something more serious...&lt;/p&gt;
+&lt;p&gt;Late 2016 I&apos;ve started my new job, it was quite nice! I join into a team that helps me a lot and teach me something every day, have all the things well documented, and although there were many new concepts they make it really easy to understand.&lt;/p&gt;
+&lt;p&gt;Now, there was more than one year in the company, I keep really impressed about how they get care of their employees, we have ping pong (I&apos;m still so bad), breakfast in time-to-time where someone can talk about any topic, training sessions, playful days... just awesome. And they also support the VigoJUG (Vigo Java Users Group), where anyone can go to attend their talks (one each month) or even host them and of course, go for a few beers after with best engineers I&apos;ve ever met.&lt;/p&gt;
+&lt;p&gt;And that helps me to understand the value of the community and that we have in Vigo a log of meetups about programming! At the moment I only go to the VigoJUG but there are groups for everything! Python, PHP, JS... is just amazing!. Thank you guys for your big effort!.&lt;/p&gt;
+&lt;p&gt;So, this third blog attempt is just because I want to share something with the community from which I get a lot, share the things that I do for my small projects and... practice English! :P I&apos;m sure that you didn&apos;t see any faults in this text! haha. I don&apos;t know, maybe anything ends being useful for anybody.&lt;/p&gt;
+	</description>
+    </item>
+
+  </channel> 
+</rss>
