@@ -9,13 +9,7 @@ This is the code of my blog where I'll post some random things about programming
 The blog is write using JBake so for build it, just need to run:
 
 ```
-jbake -b
-```
-
-If you want to launch a local server to test it while modify things run:
-
-```
-jbake -b -s
+./gradlew bake
 ```
 
 ## Deploy
