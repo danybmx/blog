@@ -1,7 +1,7 @@
 <nav class="navbar is-success">
   <div class="container">
     <div class="navbar-brand">
-      <a class="navbar-item" href="${content.rootpath}">
+      <a class="navbar-item" href="${config.site_host}">
         My own&nbsp;<strong>/dev/null</strong>
       </a>
       <div class="navbar-burger burger" data-target="mainNavbar">

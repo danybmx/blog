@@ -28,7 +28,7 @@
 
 		<hr>
 
-		<p>Go back to the <a href="${content.rootpath}">index</a>.</p>
+		<p>Go back to the <a href="${config.site_host}">index</a>.</p>
 		
 	</div>
 	
