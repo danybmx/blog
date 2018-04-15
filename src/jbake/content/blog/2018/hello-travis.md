@@ -17,13 +17,15 @@ It was interesting so I tried to do it and after some mistakes (: it was working
 
 ##### 1. Create travis-ci project.
 
-Go to [travis-ci](https://travis-ci.com) website and sign in with GitHub, then click on the plus sign that appears in the left sidebar and activates the repository that we want.
+Go to [travis-ci.com](https://travis-ci.com) website and sign in with GitHub, once logged in, click on the plus sign that appears on the left sidebar and activate the repository that you want.
 
 ##### 2. Create a deployment key for allowing travis-ci to push on the repository.
 
 For this just run `ssh-keygen` and follow instructions, store this files securely but not in the repository.
 
 Whats the problem now? Well, ship this key to GitHub is risky but with travis, you can encrypt the key and configure travis for decrypting it before starting the build process.
+
+Just run the following commands:
 
 ```
 # Install travis-cli
@@ -56,7 +58,7 @@ Just follow the instructions shown and that's done!
 
 ##### 3. Add the deployment key to GitHub repo.
 
-- Go to [github](https://www.github.com) and navigate to the `Settings` of your project, then click `Deploy keys` on the sidebar.
+- Go to [github.com](https://www.github.com) and navigate to the `Settings` of your project, then click `Deploy keys` on the sidebar.
 - Click `Add deploy key` on the right and fill it with the content of the `.pub` file that was generated in the previous step.
 
 ##### 4. Setup gradle for do all the things!
@@ -73,7 +75,7 @@ I need to build the site with jbake and then push the generated code to a differ
 
 ##### 5. Create the `.travis.yml` file.
 
-In this case, the travis file is quite simple and short so I'll paste it here, but you can found it at [github.com/danybmx/blog/blob/master/.travis.yml](https://github.com/danybmx/blog/blob/master/.travis.yml)
+For this case, the travis file is quite simple and short so I'll paste it here, but you can found it at [github.com/danybmx/blog/blob/master/.travis.yml](https://github.com/danybmx/blog/blob/master/.travis.yml).
 
 ```
 language: java
@@ -96,10 +98,10 @@ script:
 
 ##### 6. PUSH!
 
-We've finished! the only thing that we need to do now is push the changes over master!
+We've finished! the only thing that we need to do now is push the changes to master and wait to see how travis-ci do the rest. If it fails, just iterate a bit to fix the problems :P
 
 #### More things that we can improve.
 
-Push directly over master is not a good practice... maybe use another branch like `dev` or `source` that just merge with master if travis ends successfully is a good idea, by now, I will maintain it in that way just because this is not an "important" project.
+Push directly to master is not a good practice... maybe use another branch like `dev` or `source` that just merge with master if travis ends successfully is a good idea, by now, I will maintain it in that way just because this is not an "important" project.
 
 I hope this can be useful for someone, bye!!
