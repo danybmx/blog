@@ -106,10 +106,11 @@
 <p>It was interesting so I tried to do it and after some mistakes (: it was working!</p>
 <h4>Here are the steps that I followed:</h4>
 <h5>1. Create travis-ci project.</h5>
-<p>Go to <a href="https://travis-ci.com">travis-ci</a> website and sign in with GitHub, then click on the plus sign that appears in the left sidebar and activates the repository that we want.</p>
+<p>Go to <a href="https://travis-ci.com">travis-ci.com</a> website and sign in with GitHub, once logged in, click on the plus sign that appears on the left sidebar and activate the repository that you want.</p>
 <h5>2. Create a deployment key for allowing travis-ci to push on the repository.</h5>
 <p>For this just run <code>ssh-keygen</code> and follow instructions, store this files securely but not in the repository.</p>
 <p>Whats the problem now? Well, ship this key to GitHub is risky but with travis, you can encrypt the key and configure travis for decrypting it before starting the build process.</p>
+<p>Just run the following commands:</p>
 <pre><code># Install travis-cli
 gem install travis
 # Login in travis-cli
@@ -136,7 +137,7 @@ Commit all changes to your .travis.yml.
 <p>Just follow the instructions shown and that's done!</p>
 <h5>3. Add the deployment key to GitHub repo.</h5>
 <ul>
-  <li>Go to <a href="https://www.github.com">github</a> and navigate to the <code>Settings</code> of your project, then click <code>Deploy keys</code> on the sidebar.</li>
+  <li>Go to <a href="https://www.github.com">github.com</a> and navigate to the <code>Settings</code> of your project, then click <code>Deploy keys</code> on the sidebar.</li>
   <li>Click <code>Add deploy key</code> on the right and fill it with the content of the <code>.pub</code> file that was generated in the previous step.</li>
 </ul>
 <h5>4. Setup gradle for do all the things!</h5>
@@ -150,7 +151,7 @@ Commit all changes to your .travis.yml.
   </li>
 </ul>
 <h5>5. Create the <code>.travis.yml</code> file.</h5>
-<p>In this case, the travis file is quite simple and short so I'll paste it here, but you can found it at <a href="https://github.com/danybmx/blog/blob/master/.travis.yml">github.com/danybmx/blog/blob/master/.travis.yml</a></p>
+<p>For this case, the travis file is quite simple and short so I'll paste it here, but you can found it at <a href="https://github.com/danybmx/blog/blob/master/.travis.yml">github.com/danybmx/blog/blob/master/.travis.yml</a>.</p>
 <pre><code>language: java
 jdk:
 - oraclejdk8
@@ -176,9 +177,9 @@ script:
   </li>
 </ul>
 <h5>6. PUSH!</h5>
-<p>We've finished! the only thing that we need to do now is push the changes over master!</p>
+<p>We've finished! the only thing that we need to do now is push the changes to master and wait to see how travis-ci do the rest. If it fails, just iterate a bit :P</p>
 <h4>More things that we can improve.</h4>
-<p>Push directly over master is not a good practice... maybe use another branch like <code>dev</code> or <code>source</code> that just merge with master if travis ends successfully is a good idea, by now, I will maintain it in that way just because this is not an "important" project.</p>
+<p>Push directly to master is not a good practice... maybe use another branch like <code>dev</code> or <code>source</code> that just merge with master if travis ends successfully is a good idea, by now, I will maintain it in that way just because this is not an "important" project.</p>
 <p>I hope this can be useful for someone, bye!!</p></div>
 					</div>
 			</div>

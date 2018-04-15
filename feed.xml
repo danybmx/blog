@@ -6,8 +6,8 @@
     <atom:link href="https://danybmx.github.io/blog//feed.xml" rel="self" type="application/rss+xml" />
     <description>JBake Bootstrap Template</description>
     <language>en-gb</language>
-    <pubDate>Sun, 15 Apr 2018 18:01:35 +0000</pubDate>
-    <lastBuildDate>Sun, 15 Apr 2018 18:01:35 +0000</lastBuildDate>
+    <pubDate>Sun, 15 Apr 2018 18:19:53 +0000</pubDate>
+    <lastBuildDate>Sun, 15 Apr 2018 18:19:53 +0000</lastBuildDate>
 
     <item>
       <title>Hello jbake and travis</title>
@@ -21,10 +21,11 @@
 &lt;p&gt;It was interesting so I tried to do it and after some mistakes (: it was working!&lt;/p&gt;
 &lt;h4&gt;Here are the steps that I followed:&lt;/h4&gt;
 &lt;h5&gt;1. Create travis-ci project.&lt;/h5&gt;
-&lt;p&gt;Go to &lt;a href=&quot;https://travis-ci.com&quot;&gt;travis-ci&lt;/a&gt; website and sign in with GitHub, then click on the plus sign that appears in the left sidebar and activates the repository that we want.&lt;/p&gt;
+&lt;p&gt;Go to &lt;a href=&quot;https://travis-ci.com&quot;&gt;travis-ci.com&lt;/a&gt; website and sign in with GitHub, once logged in, click on the plus sign that appears on the left sidebar and activate the repository that you want.&lt;/p&gt;
 &lt;h5&gt;2. Create a deployment key for allowing travis-ci to push on the repository.&lt;/h5&gt;
 &lt;p&gt;For this just run &lt;code&gt;ssh-keygen&lt;/code&gt; and follow instructions, store this files securely but not in the repository.&lt;/p&gt;
 &lt;p&gt;Whats the problem now? Well, ship this key to GitHub is risky but with travis, you can encrypt the key and configure travis for decrypting it before starting the build process.&lt;/p&gt;
+&lt;p&gt;Just run the following commands:&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;# Install travis-cli
 gem install travis
 # Login in travis-cli
@@ -51,7 +52,7 @@ Commit all changes to your .travis.yml.
 &lt;p&gt;Just follow the instructions shown and that&apos;s done!&lt;/p&gt;
 &lt;h5&gt;3. Add the deployment key to GitHub repo.&lt;/h5&gt;
 &lt;ul&gt;
-  &lt;li&gt;Go to &lt;a href=&quot;https://www.github.com&quot;&gt;github&lt;/a&gt; and navigate to the &lt;code&gt;Settings&lt;/code&gt; of your project, then click &lt;code&gt;Deploy keys&lt;/code&gt; on the sidebar.&lt;/li&gt;
+  &lt;li&gt;Go to &lt;a href=&quot;https://www.github.com&quot;&gt;github.com&lt;/a&gt; and navigate to the &lt;code&gt;Settings&lt;/code&gt; of your project, then click &lt;code&gt;Deploy keys&lt;/code&gt; on the sidebar.&lt;/li&gt;
   &lt;li&gt;Click &lt;code&gt;Add deploy key&lt;/code&gt; on the right and fill it with the content of the &lt;code&gt;.pub&lt;/code&gt; file that was generated in the previous step.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h5&gt;4. Setup gradle for do all the things!&lt;/h5&gt;
@@ -65,7 +66,7 @@ Commit all changes to your .travis.yml.
   &lt;/li&gt;
 &lt;/ul&gt;
 &lt;h5&gt;5. Create the &lt;code&gt;.travis.yml&lt;/code&gt; file.&lt;/h5&gt;
-&lt;p&gt;In this case, the travis file is quite simple and short so I&apos;ll paste it here, but you can found it at &lt;a href=&quot;https://github.com/danybmx/blog/blob/master/.travis.yml&quot;&gt;github.com/danybmx/blog/blob/master/.travis.yml&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;For this case, the travis file is quite simple and short so I&apos;ll paste it here, but you can found it at &lt;a href=&quot;https://github.com/danybmx/blog/blob/master/.travis.yml&quot;&gt;github.com/danybmx/blog/blob/master/.travis.yml&lt;/a&gt;.&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;language: java
 jdk:
 - oraclejdk8
@@ -91,9 +92,9 @@ script:
   &lt;/li&gt;
 &lt;/ul&gt;
 &lt;h5&gt;6. PUSH!&lt;/h5&gt;
-&lt;p&gt;We&apos;ve finished! the only thing that we need to do now is push the changes over master!&lt;/p&gt;
+&lt;p&gt;We&apos;ve finished! the only thing that we need to do now is push the changes to master and wait to see how travis-ci do the rest. If it fails, just iterate a bit :P&lt;/p&gt;
 &lt;h4&gt;More things that we can improve.&lt;/h4&gt;
-&lt;p&gt;Push directly over master is not a good practice... maybe use another branch like &lt;code&gt;dev&lt;/code&gt; or &lt;code&gt;source&lt;/code&gt; that just merge with master if travis ends successfully is a good idea, by now, I will maintain it in that way just because this is not an &quot;important&quot; project.&lt;/p&gt;
+&lt;p&gt;Push directly to master is not a good practice... maybe use another branch like &lt;code&gt;dev&lt;/code&gt; or &lt;code&gt;source&lt;/code&gt; that just merge with master if travis ends successfully is a good idea, by now, I will maintain it in that way just because this is not an &quot;important&quot; project.&lt;/p&gt;
 &lt;p&gt;I hope this can be useful for someone, bye!!&lt;/p&gt;
 	</description>
     </item>
