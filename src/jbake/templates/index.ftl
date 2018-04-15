@@ -13,7 +13,7 @@
 						<div class="post-date">${post.date?string("dd MMMM yyyy")}</div>
 						<div class="twitter-button-container">
 							<a class="twitter-share-button"
-							href="https://twitter.com/intent/tweet?url=${config.site_host}${content.uri}&text=Check this &#34;${content.title}&#34; post">
+							href="https://twitter.com/intent/tweet?url=${config.site_host}${post.uri}&text=Check this &#34;${post.title}&#34; post">
 							Tweet</a>
 						</div>
 						<a href="${post.uri}"><h3 class="title"><#escape x as x?xml>${post.title}</#escape></h3></a>
