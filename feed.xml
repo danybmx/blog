@@ -6,9 +6,97 @@
     <atom:link href="https://danybmx.github.io/blog//feed.xml" rel="self" type="application/rss+xml" />
     <description>JBake Bootstrap Template</description>
     <language>en-gb</language>
-    <pubDate>Sun, 15 Apr 2018 15:25:51 +0000</pubDate>
-    <lastBuildDate>Sun, 15 Apr 2018 15:25:51 +0000</lastBuildDate>
+    <pubDate>Sun, 15 Apr 2018 17:59:13 +0000</pubDate>
+    <lastBuildDate>Sun, 15 Apr 2018 17:59:13 +0000</lastBuildDate>
 
+    <item>
+      <title>Hello jbake and travis</title>
+      <link>https://danybmx.github.io/blog//blog/2018/hello-travis.html</link>
+      <pubDate>Sun, 15 Apr 2018 00:00:00 +0000</pubDate>
+      <guid isPermaLink="false">blog/2018/hello-travis.html</guid>
+      	<description>
+	&lt;p&gt;Yesterday I published this blog on GitHub, it was so easy, just download jbake, run it, change some templates and I be able to start writing my first post...&lt;/p&gt;
+&lt;p&gt;I found out jbake when trying to apport something to the &lt;a href=&quot;http://www.vigojug.org/&quot;&gt;VigoJUG&lt;/a&gt;. They use jbake for their website and the first time I see it, it was strange... When I need to create a simple static website I just download any PHP framework, install it, and create every page. if I need to do something dynamic, just use MySQL or SQLite. That&apos;s great but you need a hosting with PHP and also MySQL or SQLite, with jbake you can have a pseudo-dynamic website powered with markdown files in just a few steps, and the better is that you finally get a static HTML site that can be published everywhere, also in GitHub pages.&lt;/p&gt;
+&lt;p&gt;The problem here was that you need to run &lt;code&gt;./gradlew clean bake&lt;/code&gt; on your computer and then do a &lt;code&gt;git commit -m &amp;quot;xxx&amp;quot;&lt;/code&gt; and a &lt;code&gt;git push&lt;/code&gt;. That&apos;s a little bit tedious since you need to have Java (is not a problem at all If you do it on your computer but is a good excuse haha), so I went to the &lt;a href=&quot;https://github.com/vigojug/vigojug.github.io&quot;&gt;vigojug/vigojug.github.io&lt;/a&gt; repository to see how they do this process and I realise that they use travis-ci to bake the site and then push to another branch.&lt;/p&gt;
+&lt;p&gt;It was interesting so I tried to do it and after some mistakes (: it was working!&lt;/p&gt;
+&lt;h4&gt;Here are the steps that I followed:&lt;/h4&gt;
+&lt;h5&gt;1. Create travis-ci project.&lt;/h5&gt;
+&lt;p&gt;Go to &lt;a href=&quot;https://travis-ci.com&quot;&gt;travis-ci&lt;/a&gt; website and sign in with GitHub, then click on the plus sign that appears in the left sidebar and activates the repository that we want.&lt;/p&gt;
+&lt;h5&gt;2. Create a deployment key for allowing travis-ci to push on the repository.&lt;/h5&gt;
+&lt;p&gt;For this just run &lt;code&gt;ssh-keygen&lt;/code&gt; and follow instructions, store this files securely but not in the repository.&lt;/p&gt;
+&lt;p&gt;Whats the problem now? Well, ship this key to GitHub is risky but with travis, you can encrypt the key and configure travis for decrypting it before starting the build process.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;# Install travis-cli
+gem install travis
+# Login in travis-cli
+travis login
+# Encrypt the rsa-key
+travis encrypt-file {your-key-file} -r {github_user}/{github_repo_name}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This will show you something like this:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ travis encrypt-file blog-travis -r danybmx/blog
+encrypting blog-travis for danybmx/blog
+storing result as blog-travis.enc
+storing secure env variables for decryption
+
+Please add the following to your build script (before_install stage in your .travis.yml, for instance):
+
+    openssl aes-256-cbc -K $encrypted_xxxxxxxxxxxx_key -iv $encrypted_xxxxxxxxxxxx_iv -in blog-travis.enc -out blog-travis -d
+
+Pro Tip: You can add it automatically by running with --add.
+
+Make sure to add blog-travis.enc to the git repository.
+Make sure not to add blog-travis to the git repository.
+Commit all changes to your .travis.yml.
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Just follow the instructions shown and that&apos;s done!&lt;/p&gt;
+&lt;h5&gt;3. Add the deployment key to GitHub repo.&lt;/h5&gt;
+&lt;ul&gt;
+  &lt;li&gt;Go to &lt;a href=&quot;https://www.github.com&quot;&gt;github&lt;/a&gt; and navigate to the &lt;code&gt;Settings&lt;/code&gt; of your project, then click &lt;code&gt;Deploy keys&lt;/code&gt; on the sidebar.&lt;/li&gt;
+  &lt;li&gt;Click &lt;code&gt;Add deploy key&lt;/code&gt; on the right and fill it with the content of the &lt;code&gt;.pub&lt;/code&gt; file that was generated in the previous step.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h5&gt;4. Setup gradle for do all the things!&lt;/h5&gt;
+&lt;p&gt;I need to build the site with jbake and then push the generated code to a different branch (&lt;code&gt;gh-pages&lt;/code&gt; in my case). Fortunately, gradle has plugins for everything and I can use the following plugins to get this done.&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/jbake-org/jbake-gradle-plugin&quot;&gt;jbake-gradle-plugin&lt;/a&gt;: Add the &lt;code&gt;bake&lt;/code&gt; task to generate the source from gradle.&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/ajoberstar/grgit&quot;&gt;grgit&lt;/a&gt;: This is a library that allows gradle to use git directly.&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/ajoberstar/gradle-git-publish&quot;&gt;gradle-git-publish&lt;/a&gt;: Provide the task &lt;code&gt;gitPublishPush&lt;/code&gt; task along with others that will help us to commit and push the content of a directory to a remote branch.
+    &lt;p&gt;You can check how to configure all those plugins in the &lt;a href=&quot;https://github.com/danybmx/blog/blob/master/build.gradle&quot;&gt;github.com/danybmx/blog/blob/master/build.gradle&lt;/a&gt;.&lt;/p&gt;
+    &lt;p&gt;Finally, I&apos;ve created a custom task that runs the clean task, followed by the bake task and finally the gitPublishPush that will push the generated content to the gh-pages branch.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+&lt;h5&gt;5. Create the &lt;code&gt;.travis.yml&lt;/code&gt; file.&lt;/h5&gt;
+&lt;p&gt;In this case, the travis file is quite simple and short so I&apos;ll paste it here, but you can found it at &lt;a href=&quot;https://github.com/danybmx/blog/blob/master/.travis.yml&quot;&gt;github.com/danybmx/blog/blob/master/.travis.yml&lt;/a&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;language: java
+jdk:
+- oraclejdk8
+before_install:
+- openssl aes-256-cbc -K $encrypted_1ecfa12135cc_key -iv $encrypted_1ecfa12135cc_iv -in blog-travis.enc -out blog-travis -d
+- export COMMIT_MESSAGE=$(git log -1 --pretty=%B)
+script:
+- ./gradlew bakeAndPush -Dorg.ajoberstar.grgit.auth.ssh.private=./blog-travis
+&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;language&lt;/strong&gt;: We need to set a language, Java, in this case, is enough.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;jdk&lt;/strong&gt;: We define the JDK version (jbake shows an error with jdk9... so I keep jdk8 here).&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;before_install&lt;/strong&gt;:
+    &lt;ul&gt;
+      &lt;li&gt;We need to decode the blog-travis.enc file that is the rsa-key for push into GitHub using the command that &lt;code&gt;travis-cli&lt;/code&gt; shows in step 2.&lt;/li&gt;
+      &lt;li&gt;I also create an environment variable with the message of the last commit for use it as commitMessage on the &lt;code&gt;gitPublish&lt;/code&gt; gradle plugin.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;script&lt;/strong&gt;: Here we should define the commands that travis will launch for test/deploy.
+    &lt;ul&gt;
+      &lt;li&gt;In this case, the &lt;code&gt;./gradlew bakeAndPush&lt;/code&gt; is enough and the &lt;code&gt;-Dorg.ajoberstar.grgit.auth.ssh.private=./blog-travis&lt;/code&gt; is just for indicate where the rsa-key that we use as deployment-key is. &lt;a href=&quot;http://ajoberstar.org/grgit/grgit-authentication.html&quot;&gt;ajoberstar.org/grgit/grgit-authentication.html&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+&lt;h5&gt;6. PUSH!&lt;/h5&gt;
+&lt;p&gt;We&apos;ve finished! the only thing that we need to do now is push the changes over master!&lt;/p&gt;
+&lt;h4&gt;More things that we can improve.&lt;/h4&gt;
+&lt;p&gt;Push directly over master is not a good practice... maybe use another branch like &lt;code&gt;dev&lt;/code&gt; or &lt;code&gt;source&lt;/code&gt; that just merge with master if travis ends successfully is a good idea, by now, I will maintain it in that way just because this is not an &quot;important&quot; project.&lt;/p&gt;
+&lt;p&gt;I hope this can be useful for someone, bye!!&lt;/p&gt;
+	</description>
+    </item>
     <item>
       <title>A new attemp...</title>
       <link>https://danybmx.github.io/blog//blog/2018/a-new-attemp.html</link>
@@ -20,8 +108,8 @@
 &lt;p&gt;So, mid-2016, I&apos;ve fixed a mate website (a WordPress that was &quot;hacked&quot;) and he tells me, &quot;I knew a company that was searching for a JS developer&quot;, I was interested so I&apos;ve contacted the company... They were looking for a Java Developer, not JS... and well, my knowledge of Java was pretty low, anyway I went to the technical test and It wasn&apos;t too bad... I need to say that it was my first job interview and I was so nervous but they allow me (and everyone) to use the internet, that helps me a lot. Finally I pass the test but I rejected the job because I didn&apos;t realise that it was for a Junior and the salary was much lower than in the current job (well... I think that the main reason was that I&apos;m really scared and I should say that was a good salary for a Junior job offer).&lt;/p&gt;
 &lt;p&gt;3 Months later, the company gets in touch with me again (THANKS), they have a job offer for a Senior developer and arrange me an interview with somebody of the team in which I&apos;ll join. I went and she explains to me what they do, how they work and how the company takes care of their employees, it was just amazing and helps me a lot to take my decision... a few days later I&apos;ve communicated my current company that I&apos;ll leave in about 15 days. Those days were really long for me... I was scared of how things will go... it will be a change from the freedom where I can write programs in the language that I want, without documentation (cause never has time), and working alone to something completely different, a well organised team, focused in Oracle products and Java (JVM), something more serious...&lt;/p&gt;
 &lt;p&gt;Late 2016 I&apos;ve started my new job, it was quite nice! I join into a team that helps me a lot and teach me something every day, have all the things well documented, and although there were many new concepts they make it really easy to understand.&lt;/p&gt;
-&lt;p&gt;Now, there was more than one year in the company, I keep really impressed about how they get care of their employees, we have ping pong (I&apos;m still so bad), breakfast in time-to-time where someone can talk about any topic, training sessions, playful days... just awesome. And they also support the VigoJUG (Vigo Java Users Group), where anyone can go to attend their talks (one each month) or even host them and of course, go for a few beers after with best engineers I&apos;ve ever met.&lt;/p&gt;
-&lt;p&gt;And that helps me to understand the value of the community and that we have in Vigo a log of meetups about programming! At the moment I only go to the VigoJUG but there are groups for everything! Python, PHP, JS... is just amazing!. Thank you guys for your big effort!.&lt;/p&gt;
+&lt;p&gt;Now, there was more than one year in the company, I keep really impressed about how they get care of their employees, we have ping pong (I&apos;m still so bad), breakfast in time-to-time where someone can talk about any topic, training sessions, playful days... just awesome. And they also support the &lt;a href=&quot;http://www.vigojug.org/&quot;&gt;VigoJUG&lt;/a&gt; (Vigo Java Users Group), where anyone can go to attend their talks (one each month) or even host them and of course, go for a few beers after with best engineers I&apos;ve ever met.&lt;/p&gt;
+&lt;p&gt;And that helps me to understand the value of the community and that we have in Vigo a log of meetups about programming! At the moment I only go to the &lt;a href=&quot;http://www.vigojug.org/&quot;&gt;VigoJUG&lt;/a&gt; but there are groups for everything! Python, PHP, JS... is just amazing!. Thank you guys for your big effort!.&lt;/p&gt;
 &lt;p&gt;So, this third blog attempt is just because I want to share something with the community from which I get a lot, share the things that I do for my small projects and... practice English! :P I&apos;m sure that you didn&apos;t see any faults in this text! haha. I don&apos;t know, maybe anything ends being useful for anybody.&lt;/p&gt;
 	</description>
     </item>
