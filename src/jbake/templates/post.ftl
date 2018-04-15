@@ -13,7 +13,7 @@
 				href="https://twitter.com/intent/tweet?url=${config.site_host}${content.uri}&text=Check this &#34;${content.title}&#34; post">
 				Tweet</a>
 			</div>
-			<a href="${content.uri}"><h3 class="title"><#escape x as x?xml>${content.title}</#escape></h3></a>
+			<a href="/${content.uri}"><h3 class="title"><#escape x as x?xml>${content.title}</#escape></h3></a>
 			<div class="has-text-justified">${content.body}</div>
 		</div>
 
