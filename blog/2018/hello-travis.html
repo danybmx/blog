@@ -98,7 +98,7 @@
 				href="https://twitter.com/intent/tweet?url=https://danybmx.github.io/blog/blog/2018/hello-travis.html&text=Check this &#34;Hello jbake and travis&#34; post">
 				Tweet</a>
 			</div>
-			<a href="blog/2018/hello-travis.html"><h3 class="title">Hello jbake and travis</h3></a>
+			<h3 class="title">Hello jbake and travis</h3>
 			<div class="has-text-justified"><p>Yesterday I published this blog on GitHub, it was so easy, just download jbake, run it, change some templates and I be able to start writing my first post...</p>
 <p>I found out jbake when trying to apport something to the <a href="http://www.vigojug.org/">VigoJUG</a>. They use jbake for their website and the first time I see it, it was strange... When I need to create a simple static website I just download any PHP framework, install it, and create every page. if I need to do something dynamic, just use MySQL or SQLite. That's great but you need a hosting with PHP and also MySQL or SQLite, with jbake you can have a pseudo-dynamic website powered with markdown files in just a few steps, and the better is that you finally get a static HTML site that can be published everywhere, also in GitHub pages.</p>
 <p>The problem here was that you need to run <code>./gradlew clean bake</code> on your computer and then do a <code>git commit -m &quot;xxx&quot;</code> and a <code>git push</code>. That's a little bit tedious since you need to have Java (is not a problem at all If you do it on your computer but is a good excuse haha), so I went to the <a href="https://github.com/vigojug/vigojug.github.io">vigojug/vigojug.github.io</a> repository to see how they do this process and I realise that they use travis-ci to bake the site and then push to another branch.</p>
