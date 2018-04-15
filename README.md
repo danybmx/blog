@@ -1,6 +1,8 @@
-# dpstudios blog
+[![Build Status](https://travis-ci.org/danybmx/blog.svg?branch=master)](https://travis-ci.org/danybmx/blog)
 
-This is the code of my blog, where I'll post some random things about programming.
+# My own blog
+
+This is the code of my blog where I'll post some random things about programming.
 
 ## Build
 
@@ -18,4 +20,5 @@ jbake -b -s
 
 ## Deploy
 
-For deploy, just push the code to master. (It's not the best but I think that is more than enough for my blog :joy:)
+This blog use github pages for show the generated code, and generated code will be pushed to gh-pages branch from
+travis-ci after a success build using the `bakeAndPublish` gradle task.
