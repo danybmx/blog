@@ -1,7 +1,7 @@
 title=A new attemp...
 date=2018-04-14
 type=post
-tags=blog,tldr
+tags=intro,tldr
 status=published
 ~~~~~~
 
@@ -15,8 +15,8 @@ So, mid-2016, I've fixed a mate website (a WordPress that was "hacked") and he t
 
 Late 2016 I've started my new job, it was quite nice! I join into a team that helps me a lot and teach me something every day, have all the things well documented, and although there were many new concepts they make it really easy to understand.
 
-Now, there was more than one year in the company, I keep really impressed about how they get care of their employees, we have ping pong (I'm still so bad), breakfast in time-to-time where someone can talk about any topic, training sessions, playful days... just awesome. And they also support the VigoJUG (Vigo Java Users Group), where anyone can go to attend their talks (one each month) or even host them and of course, go for a few beers after with best engineers I've ever met.
+Now, there was more than one year in the company, I keep really impressed about how they get care of their employees, we have ping pong (I'm still so bad), breakfast in time-to-time where someone can talk about any topic, training sessions, playful days... just awesome. And they also support the [VigoJUG](http://www.vigojug.org/) (Vigo Java Users Group), where anyone can go to attend their talks (one each month) or even host them and of course, go for a few beers after with best engineers I've ever met.
 
-And that helps me to understand the value of the community and that we have in Vigo a log of meetups about programming! At the moment I only go to the VigoJUG but there are groups for everything! Python, PHP, JS... is just amazing!. Thank you guys for your big effort!.
+And that helps me to understand the value of the community and that we have in Vigo a log of meetups about programming! At the moment I only go to the [VigoJUG](http://www.vigojug.org/) but there are groups for everything! Python, PHP, JS... is just amazing!. Thank you guys for your big effort!.
 
 So, this third blog attempt is just because I want to share something with the community from which I get a lot, share the things that I do for my small projects and... practice English! :P I'm sure that you didn't see any faults in this text! haha. I don't know, maybe anything ends being useful for anybody.

@@ -18,20 +18,8 @@ body {
 #footer {
   height: 60px;
   line-height: 60px;
-}
-#footer {
   background-color: #f5f5f5;
-  padding: 0;
-}
-
-/* Lastly, apply responsive CSS fixes as necessary */
-@media (max-width: 767px) {
-  #footer {
-    margin-left: -20px;
-    margin-right: -20px;
-    padding-left: 20px;
-    padding-right: 20px;
-  }
+  padding: 0 20px;
 }
 
 /* Custom page CSS
@@ -39,20 +27,30 @@ body {
 /* Not required for template or sticky footer method. */
 
 #wrap > .container {
-  padding-top: 60px;
+  padding: 60px 20px 0;
 }
 .container .credit {
-  margin: 20px 0;
+  margin: 20px auto;
 }
 
 /* Custom heading */
-h2.title {
+h2.title, h3.title {
   font-family: monospace;
-  font-weight: normal;
+  font-weight: bold;
 }
 
 /* Post */
-.post-date {
-  margin-top: -15px;
-  margin-bottom: 15px;
+.twitter-button-container {
+  float: right;
+  margin-top: 5px;
+}
+
+.post { 
+  padding-bottom: 30px;
+  margin-bottom: 30px;
+  border-bottom: 4px solid #23d160;
+}
+
+.post .post-date {
+  font-family: monospace;
 }

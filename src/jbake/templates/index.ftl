@@ -7,13 +7,15 @@
 		<h2 class="title">ls -1tr | head -5</h2>
 
 		<#list posts as post>
-			<#if (post.status == "published")>
-				<div class="content">
-					<a href="${post.uri}"><h3 class="title"><#escape x as x?xml>${post.title}</#escape></h3></a>
-					<div class="post-date">${post.date?string("dd MMMM yyyy")}</div>
-					<div class="has-text-justified">${post.body}</div>
-				</div>
-			</#if>
+			<div class="post">
+				<#if (post.status == "published")>
+					<div class="content">
+						<div class="post-date">${post.date?string("dd MMMM yyyy")}</div>
+						<a href="${post.uri}"><h3 class="title"><#escape x as x?xml>${post.title}</#escape></h3></a>
+						<div class="has-text-justified">${post.body}</div>
+					</div>
+				</#if>
+			</div>
 		</#list>
 		
 		<hr />
