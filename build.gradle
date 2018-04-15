@@ -7,7 +7,6 @@ buildscript {
     }
 }
 
-
 plugins {
     id 'org.jbake.site' version '1.0.0'
     id 'org.ajoberstar.grgit' version '2.1.1'
@@ -23,14 +22,18 @@ jbake {
 gitPublish {
     repoUri = 'git@github.com:danybmx/blog.git'
     branch = 'gh-pages'
-
+    
+    // Copy build/jbake as contents.
     contents {
         from(file('build/jbake')) {
             into '.'
         }
     }
 
-    commitMessage = 'Add a new update'
+    commitMessage = System.env.COMMIT_MESSAGE
+    if (!commitMessage) {
+        commitMessage = 'New blog update'
+    }
 }
 
 task bakeAndPush(type: GradleBuild) {

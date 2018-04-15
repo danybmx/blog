@@ -1,10 +1,8 @@
 language: java
 jdk:
 - oraclejdk8
-cache:
-  directories:
-  - /home/travis/.gradle
 before_install:
 - openssl aes-256-cbc -K $encrypted_1ecfa12135cc_key -iv $encrypted_1ecfa12135cc_iv -in blog-travis.enc -out blog-travis -d
+- export COMMIT_MESSAGE=$(git log -1 --pretty=%B)
 script:
 - ./gradlew bakeAndPush -Dorg.ajoberstar.grgit.auth.ssh.private=./blog-travis
