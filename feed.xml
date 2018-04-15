@@ -6,8 +6,8 @@
     <atom:link href="https://danybmx.github.io/blog//feed.xml" rel="self" type="application/rss+xml" />
     <description>JBake Bootstrap Template</description>
     <language>en-gb</language>
-    <pubDate>Sun, 15 Apr 2018 18:19:53 +0000</pubDate>
-    <lastBuildDate>Sun, 15 Apr 2018 18:19:53 +0000</lastBuildDate>
+    <pubDate>Sun, 15 Apr 2018 18:23:25 +0000</pubDate>
+    <lastBuildDate>Sun, 15 Apr 2018 18:23:25 +0000</lastBuildDate>
 
     <item>
       <title>Hello jbake and travis</title>
@@ -92,7 +92,7 @@ script:
   &lt;/li&gt;
 &lt;/ul&gt;
 &lt;h5&gt;6. PUSH!&lt;/h5&gt;
-&lt;p&gt;We&apos;ve finished! the only thing that we need to do now is push the changes to master and wait to see how travis-ci do the rest. If it fails, just iterate a bit :P&lt;/p&gt;
+&lt;p&gt;We&apos;ve finished! the only thing that we need to do now is push the changes to master and wait to see how travis-ci do the rest. If it fails, just iterate a bit to fix the problems :P&lt;/p&gt;
 &lt;h4&gt;More things that we can improve.&lt;/h4&gt;
 &lt;p&gt;Push directly to master is not a good practice... maybe use another branch like &lt;code&gt;dev&lt;/code&gt; or &lt;code&gt;source&lt;/code&gt; that just merge with master if travis ends successfully is a good idea, by now, I will maintain it in that way just because this is not an &quot;important&quot; project.&lt;/p&gt;
 &lt;p&gt;I hope this can be useful for someone, bye!!&lt;/p&gt;
