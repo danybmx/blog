@@ -223,7 +223,7 @@ git push -u origin master
 
 Go to the website and see how pipelines pass (or not... and you should debug a little bit hehe) 
 
-![Gitlab success pipeline][gitlab-login-page]
+![Gitlab success pipeline][gitlab-success]
 
 Now you should play with .gitlab-ci.yml options, and adapt it to your project. Maybe when finish this posts series I'll try to show what I do on my personal builds.
 
