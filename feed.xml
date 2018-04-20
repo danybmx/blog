@@ -6,9 +6,234 @@
     <atom:link href="https://danybmx.github.io/blog//feed.xml" rel="self" type="application/rss+xml" />
     <description>JBake Bootstrap Template</description>
     <language>en-gb</language>
-    <pubDate>Sun, 15 Apr 2018 21:23:02 +0000</pubDate>
-    <lastBuildDate>Sun, 15 Apr 2018 21:23:02 +0000</lastBuildDate>
+    <pubDate>Fri, 20 Apr 2018 21:06:16 +0000</pubDate>
+    <lastBuildDate>Fri, 20 Apr 2018 21:06:16 +0000</lastBuildDate>
 
+    <item>
+      <title>My &quot;cheap&quot; devops stack</title>
+      <link>https://danybmx.github.io/blog//blog/2018/my-cheap-devops-stack.html</link>
+      <pubDate>Fri, 20 Apr 2018 00:00:00 +0000</pubDate>
+      <guid isPermaLink="false">blog/2018/my-cheap-devops-stack.html</guid>
+      	<description>
+	&lt;p&gt;This past week I listen a few times &quot;Spot Instances&quot; while my workmates talk about our CI environment. When I arrive my home, I just start to read about AWS Spot Instances, and well... for CI they&apos;re pretty awesome. The thing is that AWS offer the instances that are not in use with a lower price, the instances are the same that the ones you create on-demand except for one thing, AWS can claim and stop them with only two minutes in advance. This last part doesn&apos;t matter in a big way to e2e tests or build tasks if you can try them in another moment.&lt;/p&gt;
+&lt;p&gt;So, I start to put together things that learn lately and finally the idea of mount a GitLab + Docker registry + CI-runner comes up. I want to run this all on a small 15€ VPS server that I rent for my personal projects. That projects are small, but some of them are in &quot;production&quot; and I don&apos;t want to hit the performance only because I made some changes and the CI starts to do tests, package .jars and build docker images. Here is where the spot instances will &quot;save my life&quot; the ci-runner will only manage the spot-instance request and the build status the &quot;heavy&quot; compute things will be done in AWS.&lt;/p&gt;
+&lt;p&gt;Well, I spent a long afternoon but finally I got everything working!! but... a new problem pops up... cache between instances... If the CI runs a build on an instance that finally shutdowns due to inactivity, next time that the CI will run, should download all the node/java dependencies and that&apos;s a little bit slow. So what can I do? configure S3 as cache storage!&lt;/p&gt;
+&lt;p&gt;I&apos;ll split this &quot;how-to&quot; into two posts, this is the first and we will get at the end a local (or in a VPS) gitlab-ce with a docker-registry and a gitlab-runner, all running over docker!&lt;/p&gt;
+&lt;h3&gt;Dependencies&lt;/h3&gt;
+&lt;p&gt;First of all, you should have installed this tools on your VPS or computer:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;docker-engine: just docker :P&lt;/li&gt;
+  &lt;li&gt;docker-compose: will help us to manage docker instances and have them all connected.&lt;/li&gt;
+  &lt;li&gt;docker-machine: will allow gitlab-ci-runner to connect to AWS instance and register it as a docker-machine.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Here are my current versions:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;daniel@vps:/home/gitlab$ docker -v
+Docker version 17.12.1-ce, build 7390fc6
+daniel@vps:/home/gitlab$ docker-compose -v
+docker-compose version 1.8.0, build unknown
+daniel@vps:/home/gitlab$ docker-machine -v
+docker-machine version 0.14.0, build 89b8332
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;Step 1. Introduction to the docker-compose file&lt;/h3&gt;
+&lt;p&gt;I want to really thanks to this guy &lt;a href=&quot;https://github.com/sameersbn&quot;&gt;github.com/sameersbn&lt;/a&gt; for create this pretty nice docker image and a &lt;a href=&quot;https://github.com/sameersbn/docker-gitlab/blob/master/docker-compose.yml&quot;&gt;github.com/sameersbn/docker-gitlab/blob/master/docker-compose.yml&lt;/a&gt; that do all the work... It&apos;s quite easy to work with well-documented projects like this.&lt;/p&gt;
+&lt;p&gt;The docker-compose.yml file that I will reference below are published on &lt;a href=&quot;https://github.com/danybmx/my-cheap-devops-stack&quot;&gt;github.com/danybmx/my-cheap-devops&lt;/a&gt;. You can go there and do a FF to this post!&lt;/p&gt;
+&lt;h4&gt;Gitlab&lt;/h4&gt;
+&lt;p&gt;Well as I said, that guys offer a docker-compose.yml that do everything so I just copied it and clean it up to configure only with my needs.&lt;/p&gt;
+&lt;p&gt;If you want to remove the docker registry, just remove the registry service and the REGISTRY_* environment values from &lt;code&gt;gitlab&lt;/code&gt; service.&lt;/p&gt;
+&lt;p&gt;You should replace {{HOST_IP}} on this docker-compose.yml with your host machine IP or public IP as you prefer.&lt;/p&gt;
+&lt;p&gt;This docker-compose basically start 5 instances for run gitlab-ce with ci-runners and docker-registry.&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;sameersbn/redis&lt;/strong&gt;&lt;/p&gt;
+    &lt;ul&gt;
+      &lt;li&gt;
+      &lt;p&gt;There are no so much to comment on this, the configuration is basically the image and a volume for persist the data.&lt;/p&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;sameersbn/postgresql&lt;/strong&gt;&lt;/p&gt;
+    &lt;ul&gt;
+      &lt;li&gt;
+        &lt;p&gt;As in the previous service, here we configure another volume for persist the data and also set following environment values (replace with your owns):&lt;/p&gt;
+        &lt;ul&gt;
+          &lt;li&gt;DB_USER=gitlab&lt;/li&gt;
+          &lt;li&gt;DB_PASS=RM4L6X6An4wpLKQE&lt;/li&gt;
+          &lt;li&gt;DB_NAME=gitlabhq&lt;/li&gt;
+          &lt;li&gt;DB_EXTENSION=pg_trgm&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+      &lt;p&gt;This image will create this user the first time it run and also the database, so we should use this info in the gitlab service.&lt;/p&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;sameersbn/gitlab&lt;/strong&gt; (this is the bigger one :P)&lt;/p&gt;
+    &lt;ul&gt;
+      &lt;li&gt;As in the previous service, we configure one volume for persisting data&lt;/li&gt;
+      &lt;li&gt;Set two port bindings in this case, but this is just because is prepared to work on your computer. In production, I doesn&apos;t like to expose ports on the host so I prefer to have a proxy (maybe I can write a future post with this)&lt;/li&gt;
+      &lt;li&gt;Set that this instance depends on redis and postgresql to be sure that docker doesn&apos;t start this machine if the database fails. In the case of registry, we add it too to this list&lt;/li&gt;
+      &lt;li&gt;Environment vars, there are a lot!
+        &lt;ul&gt;
+          &lt;li&gt;DB_*: Fill it up with the previous data&lt;/li&gt;
+          &lt;li&gt;REDUS_*: Fill it up with the previous data&lt;/li&gt;
+          &lt;li&gt;GITLAB_HOST: The host that will expose gitlab over the network (the domain or host IP)&lt;/li&gt;
+          &lt;li&gt;GITLAB_PORT: HTTP Port of gitlab on the GITLAB_HOST that is exposed to the network&lt;/li&gt;
+          &lt;li&gt;GITLAB_SSH_PORT: This is the ssh port on the GITLAB_HOST that is exposed to the network and allows you to connect by SSH to the gitlab instance (use git through ssh)&lt;/li&gt;
+          &lt;li&gt;GITLAB_SECRETS_*: gitlab use this internally for encrypt/decrypt replace them with another ones :)&lt;/li&gt;
+          &lt;li&gt;GITLAB_ROOT_EMAIL: This will be the admin login&lt;/li&gt;
+          &lt;li&gt;GITLAB_ROOT_PASSWORD: This will be the admin password&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;gitlab/gitlab-runner&lt;/strong&gt; the ci-runner&lt;/p&gt;
+    &lt;ul&gt;
+      &lt;li&gt;
+      &lt;p&gt;Here we set two volumes, one for have access to the config.toml file and other for share the host machine docker socket with it. This is a need if you want to use (docker inside docker) dind.&lt;/p&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;registry&lt;/strong&gt;&lt;/p&gt;
+    &lt;ul&gt;
+      &lt;li&gt;Expose port 5000 to allow communication between instances on the same network (docker-compose generates a default network for their machines)&lt;/li&gt;
+      &lt;li&gt;Bind host port 9001 to the 5000 for allowing the access from the network (as in the gitlab, IMHO this is ugly on production)&lt;/li&gt;
+      &lt;li&gt;We create two volumes here, one is for persisting the registry repository and the other is for the certificates that should be shared with gitlab service.&lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;We need to set following environment variables to link it with gitlab:&lt;/p&gt;
+        &lt;ul&gt;
+          &lt;li&gt;REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: Path where images will be stored&lt;/li&gt;
+          &lt;li&gt;REGISTRY_AUTH_TOKEN_REALM: Address to the gitlab jwt authentication&lt;/li&gt;
+          &lt;li&gt;REGISTRY_AUTH_TOKEN_SERVICE: This should be &quot;container_registry&quot;&lt;/li&gt;
+          &lt;li&gt;REGISTRY_AUTH_TOKEN_ISSUER: The certificate&apos;s issuer&lt;/li&gt;
+          &lt;li&gt;REGISTRY_AUTH_TOKEN_ROOTCERTBUNDLE: Path to the root certificate&lt;/li&gt;
+          &lt;li&gt;REGISTRY_STORAGE_DELETE_ENABLED: This allows to delete images&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;For run the registry this others environment variables should be added to the gitlab service:&lt;/p&gt;
+        &lt;ul&gt;
+          &lt;li&gt;GITLAB_REGISTRY_ENABLED: Just should be true&lt;/li&gt;
+          &lt;li&gt;GITLAB_REGISTRY_HOST: The host URL under which the Registry will run and the users will be able to use.&lt;/li&gt;
+          &lt;li&gt;GITLAB_REGISTRY_PORT: The port under which the external Registry domain will listen on.&lt;/li&gt;
+          &lt;li&gt;GITLAB_REGISTRY_API_URL: The internal API URL under which the Registry is exposed to.&lt;/li&gt;
+          &lt;li&gt;GITLAB_REGISTRY_KEY_PATH: Path to the certificates (did you remember the shared volumes?)&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Step 2. Generate certificates&lt;/h3&gt;
+&lt;p&gt;I&apos;ve created a bash script for generating needed certificates, it can be found at &lt;a href=&quot;https://github.com/danybmx/my-cheap-devops/create-registry-certificates.sh&quot;&gt;github.com/danybmx/my-cheap-devops/create-registry-certificates.sh&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;You can fill the data you want on the script but don&apos;t worry about it, this only will be used for internal communication between registry and gitlab.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ sh create-registry-certificates.sh
+Generating a 2048 bit RSA private key
+..................+++
+..................................................+++
+writing new private key to &amp;#39;registry.key&amp;#39;
+-----
+Signature ok
+subject=/C=ES/ST=PO/L=Vigo/O=Registry/OU=Registry/CN=registry
+Getting Private key
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Ensure that the &lt;code&gt;certs&lt;/code&gt; folder is in the same folder as the docker-compose.yml file and that&apos;s all!&lt;/p&gt;
+&lt;h3&gt;Step 3. Run instances!&lt;/h3&gt;
+&lt;p&gt;Now, you just need to run the instances and wait until gitlab are available! How? just run:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ docker-compose up -d
+$ docker-compose logs -f
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The &lt;code&gt;-f&lt;/code&gt; option on docker-compose gives you the option to chose the config file instead use the default.&lt;/p&gt;
+&lt;p&gt;We run the &lt;code&gt;up&lt;/code&gt; with &lt;code&gt;-d&lt;/code&gt; for start in detached mode and then show the logs with &lt;code&gt;-f&lt;/code&gt; follow options. This allows you to Ctrl-c without stop the instances.&lt;/p&gt;
+&lt;p&gt;Now, access to &lt;a href=&quot;http://localhost:9000/&quot;&gt;localhost:9000/&lt;/a&gt;!. It will show you a 502 at the beggining, you should wait and refresh until it works. This is just because gitlab is still starting.&lt;/p&gt;
+&lt;p&gt;After a while, you should see your own gitlab-ce login page!, the login info is the one that you have set on the docker-compose file &lt;code&gt;GITLAB_ROOT_EMAIL&lt;/code&gt; and &lt;code&gt;GITLAB_ROOT_PASSWORD&lt;/code&gt;. Or just register for an account without admin permissions.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/blog/img/posts/gitlab-ce/gitlab-login-page.png&quot; alt=&quot;Gitlab login page&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;Create a test project and that&apos;s all, you have, gitlab running and also the registry if you have chosen that option!&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/blog/img/posts/gitlab-ce/gitlab-test-project-registry.png&quot; alt=&quot;Gitlab project docker registry&quot; /&gt;&lt;/p&gt;
+&lt;h3&gt;Step 4. Register a gitlab-ci-runner&lt;/h3&gt;
+&lt;p&gt;Well, we launched all the stack but we didn&apos;t register any ci-runner on gitlab, go ahead.&lt;/p&gt;
+&lt;p&gt;First of all, login on your gitlab as admin and go to /admin/runners &lt;a href=&quot;http://localhost:9000/admin/runners&quot;&gt;localhost:9000/admin/runners&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Once here, you will see a token, copy it.&lt;/p&gt;
+&lt;p&gt;Go to the terminal, and navigate to the path where the docker-compose files are. Once there, run the following command:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;docker-compose exec ci_runner gitlab-runner register
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This will execute the &lt;code&gt;gitlab-runner register&lt;/code&gt; command inside the runner instance and this will prompt you for some data in order to register the runner.&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;Please enter the gitlab-ci coordinator URL (e.g. &lt;a href=&quot;https://gitlab.com/&quot;&gt;https://gitlab.com/&lt;/a&gt;)
+    &lt;ul&gt;
+      &lt;li&gt;Here you should write the internal http url to reach gitlab, in our case should be &lt;code&gt;http://gitlab&lt;/code&gt; since &lt;code&gt;gitlab&lt;/code&gt; is the name of the service.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Please enter the gitlab-ci token for this runner:
+    &lt;ul&gt;
+      &lt;li&gt;Just paste the token you copied on the website.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Please enter the gitlab-ci description for this runner:
+    &lt;ul&gt;
+      &lt;li&gt;A description for identify the runner from gitlab, I keep it with the default.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Please enter the gitlab-ci tags for this runner (comma separated):
+    &lt;ul&gt;
+      &lt;li&gt;I keep this blank too&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Whether to lock the Runner to current project [true/false]:
+    &lt;ul&gt;
+      &lt;li&gt;Here I put false, if it&apos;s true, the runner will run only for a specific project.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Please enter the executor: docker, shell, ssh, docker-ssh+machine, docker-ssh, parallels, virtualbox, docker+machine, kubernetes:
+    &lt;ul&gt;
+      &lt;li&gt;docker&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Please enter the default Docker image (e.g. ruby:2.1):
+    &lt;ul&gt;
+      &lt;li&gt;alpine&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;That&apos;s all, refresh the website and you&apos;ll have a new ci-runner waiting!&lt;/p&gt;
+&lt;h3&gt;Step 5. Create a test pipeline&lt;/h3&gt;
+&lt;p&gt;Just clone the test-project that you&apos;ve created:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;git clone http://localhost:9000/{{user}}/test-project.git
+cd test-project
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Create on it a .gitlab-ci.yml file with following content:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;image: alpine:latest
+
+stages:
+  - build
+  - test
+  - deploy
+
+build:
+  stage: build
+  script:
+  - echo &amp;quot;I&amp;#39;m building&amp;quot;
+
+test:
+  stage: test
+  script:
+  - echo &amp;quot;I&amp;#39;m testing&amp;quot;
+
+deploy:
+  stage: deploy
+  script:
+  - echo &amp;quot;I&amp;#39;m deploying&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Commit and push the change:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;git add .gitlab-ci.yml
+git commit -m &amp;quot;First ci-runner test!&amp;quot;
+git push -u origin master
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Go to the website and see how pipelines pass (or not... and you should debug a little bit hehe) &lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/blog/img/posts/gitlab-ce/gitlab-login-page.png&quot; alt=&quot;Gitlab success pipeline&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;Now you should play with .gitlab-ci.yml options, and adapt it to your project. Maybe when finish this posts series I&apos;ll try to show what I do on my personal builds.&lt;/p&gt;
+&lt;p&gt;On next post we will see how to use AWS Spot instances as machines for launch our tests/builds and how to configure S3 as cache. Go to AWS and create your account!&lt;/p&gt;
+	</description>
+    </item>
     <item>
       <title>Hello jbake and travis</title>
       <link>https://danybmx.github.io/blog//blog/2018/hello-travis.html</link>
