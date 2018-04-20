@@ -6,8 +6,8 @@
     <atom:link href="https://danybmx.github.io/blog//feed.xml" rel="self" type="application/rss+xml" />
     <description>JBake Bootstrap Template</description>
     <language>en-gb</language>
-    <pubDate>Fri, 20 Apr 2018 21:10:06 +0000</pubDate>
-    <lastBuildDate>Fri, 20 Apr 2018 21:10:06 +0000</lastBuildDate>
+    <pubDate>Fri, 20 Apr 2018 21:14:53 +0000</pubDate>
+    <lastBuildDate>Fri, 20 Apr 2018 21:14:53 +0000</lastBuildDate>
 
     <item>
       <title>My &apos;cheap&apos; devops stack</title>
@@ -229,7 +229,7 @@ git commit -m &amp;quot;First ci-runner test!&amp;quot;
 git push -u origin master
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Go to the website and see how pipelines pass (or not... and you should debug a little bit hehe) &lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;/blog/img/posts/gitlab-ce/gitlab-login-page.png&quot; alt=&quot;Gitlab success pipeline&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/blog/img/posts/gitlab-ce/gitlab-success.png&quot; alt=&quot;Gitlab success pipeline&quot; /&gt;&lt;/p&gt;
 &lt;p&gt;Now you should play with .gitlab-ci.yml options, and adapt it to your project. Maybe when finish this posts series I&apos;ll try to show what I do on my personal builds.&lt;/p&gt;
 &lt;p&gt;On next post we will see how to use AWS Spot instances as machines for launch our tests/builds and how to configure S3 as cache. Go to AWS and create your account!&lt;/p&gt;
 	</description>
