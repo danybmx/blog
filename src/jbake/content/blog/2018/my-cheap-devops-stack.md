@@ -7,11 +7,15 @@ status=published
 
 This past week I listen a few times "Spot Instances" while my workmates talk about our CI environment. When I arrive my home, I just start to read about AWS Spot Instances, and well... for CI they're pretty awesome. The thing is that AWS offer the instances that are not in use with a lower price, the instances are the same that the ones you create on-demand except for one thing, AWS can claim and stop them with only two minutes in advance. This last part doesn't matter in a big way to e2e tests or build tasks if you can try them in another moment.
 
-So, I start to put together things that learn lately and finally the idea of mount a GitLab + Docker registry + CI-runner comes up. I want to run this all on a small 15€ VPS server that I rent for my personal projects. That projects are small, but some of them are in "production" and I don't want to hit the performance only because I made some changes and the CI starts to do tests, package .jars and build docker images. Here is where the spot instances will "save my life" the ci-runner will only manage the spot-instance request and the build status the "heavy" compute things will be done in AWS.
+So, I start to put together things that learn lately and finally the idea of run a GitLab + Docker registry + CI-runner comes up. I want to run this all on a small 15€ VPS server that I rent for my personal projects. That projects are small, but some of them are in "production" and I don't want to hit performance only because I made some changes and the CI starts to do tests, package jars, build docker images... Here is where the spot instances will "save my life", the ci-runner will only manage the spot-instance request and the build status. The "heavy" load will be done in AWS.
 
-Well, I spent a long afternoon but finally I got everything working!! but... a new problem pops up... cache between instances... If the CI runs a build on an instance that finally shutdowns due to inactivity, next time that the CI will run, should download all the node/java dependencies and that's a little bit slow. So what can I do? configure S3 as cache storage!
+I spent a long afternoon but finally I got everything working!! until a new problem pops up... cache between instances... If the CI runs a build on an instance that finally shutdowns due to inactivity, next time that the CI will run, should download all the node/java dependencies and that's a little bit slow. So what can I do? configure S3 as cache storage!
 
-I'll split this "how-to" into two posts, this is the first and we will get at the end a local (or in a VPS) gitlab-ce with a docker-registry and a gitlab-runner, all running over docker!
+I'll split this "how-to" into three posts, this is the first and we will get at the end of it a running gitlab-ce with a docker-registry and a gitlab-runner, all over docker!
+
+In the next post I'll show how to integrate it with AWS Spot instances and S3 storage.
+
+In the last post we will see how to deploy docker images with ansible (in my way, maybe not the best).
 
 ### Dependencies
 
@@ -33,23 +37,25 @@ docker-machine version 0.14.0, build 89b8332
 
 ### Step 1. Introduction to the docker-compose file
 
-I want to really thanks to this guy [github.com/sameersbn](https://github.com/sameersbn) for create this pretty nice docker image and a [github.com/sameersbn/docker-gitlab/blob/master/docker-compose.yml](https://github.com/sameersbn/docker-gitlab/blob/master/docker-compose.yml) that do all the work... It's quite easy to work with well-documented projects like this.
+I want to really thanks to this guy [github.com/sameersbn](https://github.com/sameersbn) for create this pretty nice docker images and a [github.com/sameersbn/docker-gitlab/blob/master/docker-compose.yml](https://github.com/sameersbn/docker-gitlab/blob/master/docker-compose.yml) that do all the work... It's quite easy to work with well-documented projects like this.
 
-The docker-compose.yml file that I will reference below are published on [github.com/danybmx/my-cheap-devops](https://github.com/danybmx/my-cheap-devops-stack). You can go there and do a FF to this post!
+The docker-compose.yml file and code that I will show below are published on [github.com/danybmx/my-cheap-devops](https://github.com/danybmx/my-cheap-devops-stack). You can go there and do a FF to this post!
 
 #### Gitlab
 
-Well as I said, that guys offer a docker-compose.yml that do everything so I just copied it and clean it up to configure only with my needs.
+Well as I said, that guy create a docker-compose.yml that do everything so I just copied it and clean it up to configure only with my needs.
 
 If you want to remove the docker registry, just remove the registry service and the REGISTRY_* environment values from `gitlab` service.
 
-You should replace {{HOST_IP}} on this docker-compose.yml with your host machine IP or public IP as you prefer.
+You should replace {{YOUR_IP}} on this docker-compose.yml with your host machine IP or public IP as you prefer.
 
 This docker-compose basically start 5 instances for run gitlab-ce with ci-runners and docker-registry.
 
 - **sameersbn/redis**
   
     - There are no so much to comment on this, the configuration is basically the image and a volume for persist the data.
+
+
 
 - **sameersbn/postgresql**
 
@@ -61,6 +67,8 @@ This docker-compose basically start 5 instances for run gitlab-ce with ci-runner
         - DB_EXTENSION=pg_trgm
 
     - This image will create this user the first time it run and also the database, so we should use this info in the gitlab service.
+
+
 
 - **sameersbn/gitlab** (this is the bigger one :P)
 
@@ -78,9 +86,13 @@ This docker-compose basically start 5 instances for run gitlab-ce with ci-runner
         - GITLAB_ROOT_EMAIL: This will be the admin login
         - GITLAB_ROOT_PASSWORD: This will be the admin password
 
+
+
 - **gitlab/gitlab-runner** the ci-runner
 
     - Here we set two volumes, one for have access to the config.toml file and other for share the host machine docker socket with it. This is a need if you want to use (docker inside docker) dind.
+
+
 
 - **registry**
 
