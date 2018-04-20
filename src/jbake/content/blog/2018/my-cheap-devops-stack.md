@@ -1,4 +1,4 @@
-title=My "cheap" devops stack
+title=My 'cheap' devops stack
 date=2018-04-20
 type=post
 tags=devops,docker,gitlab,aws,ci
