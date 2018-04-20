@@ -106,10 +106,10 @@
 						<div class="post-date">20 April 2018</div>
 						<div class="twitter-button-container">
 							<a class="twitter-share-button"
-							href="https://twitter.com/intent/tweet?url=https://danybmx.github.io/blog/blog/2018/my-cheap-devops-stack.html&text=Check this &#34;My "cheap" devops stack&#34; post">
+							href="https://twitter.com/intent/tweet?url=https://danybmx.github.io/blog/blog/2018/my-cheap-devops-stack.html&text=Check this &#34;My 'cheap' devops stack&#34; post">
 							Tweet</a>
 						</div>
-						<a href="blog/2018/my-cheap-devops-stack.html"><h3 class="title">My &quot;cheap&quot; devops stack</h3></a>
+						<a href="blog/2018/my-cheap-devops-stack.html"><h3 class="title">My &apos;cheap&apos; devops stack</h3></a>
 						<div class="has-text-justified"><p>This past week I listen a few times "Spot Instances" while my workmates talk about our CI environment. When I arrive my home, I just start to read about AWS Spot Instances, and well... for CI they're pretty awesome. The thing is that AWS offer the instances that are not in use with a lower price, the instances are the same that the ones you create on-demand except for one thing, AWS can claim and stop them with only two minutes in advance. This last part doesn't matter in a big way to e2e tests or build tasks if you can try them in another moment.</p>
 <p>So, I start to put together things that learn lately and finally the idea of mount a GitLab + Docker registry + CI-runner comes up. I want to run this all on a small 15€ VPS server that I rent for my personal projects. That projects are small, but some of them are in "production" and I don't want to hit the performance only because I made some changes and the CI starts to do tests, package .jars and build docker images. Here is where the spot instances will "save my life" the ci-runner will only manage the spot-instance request and the build status the "heavy" compute things will be done in AWS.</p>
 <p>Well, I spent a long afternoon but finally I got everything working!! but... a new problem pops up... cache between instances... If the CI runs a build on an instance that finally shutdowns due to inactivity, next time that the CI will run, should download all the node/java dependencies and that's a little bit slow. So what can I do? configure S3 as cache storage!</p>
