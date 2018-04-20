@@ -6,8 +6,8 @@
     <atom:link href="https://danybmx.github.io/blog//feed.xml" rel="self" type="application/rss+xml" />
     <description>JBake Bootstrap Template</description>
     <language>en-gb</language>
-    <pubDate>Fri, 20 Apr 2018 21:16:10 +0000</pubDate>
-    <lastBuildDate>Fri, 20 Apr 2018 21:16:10 +0000</lastBuildDate>
+    <pubDate>Fri, 20 Apr 2018 21:29:20 +0000</pubDate>
+    <lastBuildDate>Fri, 20 Apr 2018 21:29:20 +0000</lastBuildDate>
 
     <item>
       <title>My &apos;cheap&apos; devops stack</title>
@@ -16,9 +16,11 @@
       <guid isPermaLink="false">blog/2018/my-cheap-devops-stack.html</guid>
       	<description>
 	&lt;p&gt;This past week I listen a few times &quot;Spot Instances&quot; while my workmates talk about our CI environment. When I arrive my home, I just start to read about AWS Spot Instances, and well... for CI they&apos;re pretty awesome. The thing is that AWS offer the instances that are not in use with a lower price, the instances are the same that the ones you create on-demand except for one thing, AWS can claim and stop them with only two minutes in advance. This last part doesn&apos;t matter in a big way to e2e tests or build tasks if you can try them in another moment.&lt;/p&gt;
-&lt;p&gt;So, I start to put together things that learn lately and finally the idea of mount a GitLab + Docker registry + CI-runner comes up. I want to run this all on a small 15€ VPS server that I rent for my personal projects. That projects are small, but some of them are in &quot;production&quot; and I don&apos;t want to hit the performance only because I made some changes and the CI starts to do tests, package .jars and build docker images. Here is where the spot instances will &quot;save my life&quot; the ci-runner will only manage the spot-instance request and the build status the &quot;heavy&quot; compute things will be done in AWS.&lt;/p&gt;
-&lt;p&gt;Well, I spent a long afternoon but finally I got everything working!! but... a new problem pops up... cache between instances... If the CI runs a build on an instance that finally shutdowns due to inactivity, next time that the CI will run, should download all the node/java dependencies and that&apos;s a little bit slow. So what can I do? configure S3 as cache storage!&lt;/p&gt;
-&lt;p&gt;I&apos;ll split this &quot;how-to&quot; into two posts, this is the first and we will get at the end a local (or in a VPS) gitlab-ce with a docker-registry and a gitlab-runner, all running over docker!&lt;/p&gt;
+&lt;p&gt;So, I start to put together things that learn lately and finally the idea of run a GitLab + Docker registry + CI-runner comes up. I want to run this all on a small 15€ VPS server that I rent for my personal projects. That projects are small, but some of them are in &quot;production&quot; and I don&apos;t want to hit performance only because I made some changes and the CI starts to do tests, package jars, build docker images... Here is where the spot instances will &quot;save my life&quot;, the ci-runner will only manage the spot-instance request and the build status. The &quot;heavy&quot; load will be done in AWS.&lt;/p&gt;
+&lt;p&gt;I spent a long afternoon but finally I got everything working!! until a new problem pops up... cache between instances... If the CI runs a build on an instance that finally shutdowns due to inactivity, next time that the CI will run, should download all the node/java dependencies and that&apos;s a little bit slow. So what can I do? configure S3 as cache storage!&lt;/p&gt;
+&lt;p&gt;I&apos;ll split this &quot;how-to&quot; into three posts, this is the first and we will get at the end of it a running gitlab-ce with a docker-registry and a gitlab-runner, all over docker!&lt;/p&gt;
+&lt;p&gt;In the next post I&apos;ll show how to integrate it with AWS Spot instances and S3 storage.&lt;/p&gt;
+&lt;p&gt;In the last post we will see how to deploy docker images with ansible (in my way, maybe not the best).&lt;/p&gt;
 &lt;h3&gt;Dependencies&lt;/h3&gt;
 &lt;p&gt;First of all, you should have installed this tools on your VPS or computer:&lt;/p&gt;
 &lt;ul&gt;
@@ -35,10 +37,10 @@ daniel@vps:/home/gitlab$ docker-machine -v
 docker-machine version 0.14.0, build 89b8332
 &lt;/code&gt;&lt;/pre&gt;
 &lt;h3&gt;Step 1. Introduction to the docker-compose file&lt;/h3&gt;
-&lt;p&gt;I want to really thanks to this guy &lt;a href=&quot;https://github.com/sameersbn&quot;&gt;github.com/sameersbn&lt;/a&gt; for create this pretty nice docker image and a &lt;a href=&quot;https://github.com/sameersbn/docker-gitlab/blob/master/docker-compose.yml&quot;&gt;github.com/sameersbn/docker-gitlab/blob/master/docker-compose.yml&lt;/a&gt; that do all the work... It&apos;s quite easy to work with well-documented projects like this.&lt;/p&gt;
-&lt;p&gt;The docker-compose.yml file that I will reference below are published on &lt;a href=&quot;https://github.com/danybmx/my-cheap-devops-stack&quot;&gt;github.com/danybmx/my-cheap-devops&lt;/a&gt;. You can go there and do a FF to this post!&lt;/p&gt;
+&lt;p&gt;I want to really thanks to this guy &lt;a href=&quot;https://github.com/sameersbn&quot;&gt;github.com/sameersbn&lt;/a&gt; for create this pretty nice docker images and a &lt;a href=&quot;https://github.com/sameersbn/docker-gitlab/blob/master/docker-compose.yml&quot;&gt;github.com/sameersbn/docker-gitlab/blob/master/docker-compose.yml&lt;/a&gt; that do all the work... It&apos;s quite easy to work with well-documented projects like this.&lt;/p&gt;
+&lt;p&gt;The docker-compose.yml file and code that I will show below are published on &lt;a href=&quot;https://github.com/danybmx/my-cheap-devops-stack&quot;&gt;github.com/danybmx/my-cheap-devops&lt;/a&gt;. You can go there and do a FF to this post!&lt;/p&gt;
 &lt;h4&gt;Gitlab&lt;/h4&gt;
-&lt;p&gt;Well as I said, that guys offer a docker-compose.yml that do everything so I just copied it and clean it up to configure only with my needs.&lt;/p&gt;
+&lt;p&gt;Well as I said, that guy create a docker-compose.yml that do everything so I just copied it and clean it up to configure only with my needs.&lt;/p&gt;
 &lt;p&gt;If you want to remove the docker registry, just remove the registry service and the REGISTRY_* environment values from &lt;code&gt;gitlab&lt;/code&gt; service.&lt;/p&gt;
 &lt;p&gt;You should replace {{HOST_IP}} on this docker-compose.yml with your host machine IP or public IP as you prefer.&lt;/p&gt;
 &lt;p&gt;This docker-compose basically start 5 instances for run gitlab-ce with ci-runners and docker-registry.&lt;/p&gt;
