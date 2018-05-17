@@ -15,7 +15,7 @@ plugins {
 
 jbake {
     srcDirName = 'src/jbake'
-    destDirName = 'jbake'
+    destDirName = 'blog'
     clearCache = true
 }
 
@@ -25,7 +25,7 @@ gitPublish {
     
     // Copy build/jbake as contents.
     contents {
-        from(file('build/jbake')) {
+        from(file('build/blog')) {
             into '.'
         }
     }

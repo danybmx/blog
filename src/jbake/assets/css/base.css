@@ -35,8 +35,36 @@ body {
 
 /* Custom heading */
 h2.title, h3.title {
-  font-family: monospace;
   font-weight: bold;
+}
+h2.title {
+  font-size: 2.4em;
+}
+h3.title {
+  font-size: 2em;
+}
+h2, h3, h4, h5 {
+  font-weight: bold !important;
+  font-family: monospace;
+}
+h2 {
+  font-size: 2em;
+}
+h3 {
+  font-size: 1.7em;
+}
+h4 {
+  font-size: 1.3em;
+}
+h5 {
+  font-size: 1.2em;
+}
+
+video {
+  display: inline-block;
+  margin: 20px 0;
+  width: 100%;
+  max-width: 560px;
 }
 
 /* Post */
