@@ -6,9 +6,90 @@
     <atom:link href="https://danybmx.github.io/blog//feed.xml" rel="self" type="application/rss+xml" />
     <description>JBake Bootstrap Template</description>
     <language>en-gb</language>
-    <pubDate>Fri, 20 Apr 2018 21:32:19 +0000</pubDate>
-    <lastBuildDate>Fri, 20 Apr 2018 21:32:19 +0000</lastBuildDate>
+    <pubDate>Thu, 17 May 2018 14:21:14 +0000</pubDate>
+    <lastBuildDate>Thu, 17 May 2018 14:21:14 +0000</lastBuildDate>
 
+    <item>
+      <title>My devops stack: gitlab-ce, aws spot instances and s3.</title>
+      <link>https://danybmx.github.io/blog//blog/2018/devops-stack-gitlab-aws-spot-and-s3.html</link>
+      <pubDate>Thu, 17 May 2018 00:00:00 +0000</pubDate>
+      <guid isPermaLink="false">blog/2018/devops-stack-gitlab-aws-spot-and-s3.html</guid>
+      	<description>
+	&lt;p&gt;Wow, that was near to a month since the last post... time passes so fast.&lt;/p&gt;
+&lt;p&gt;This &quot;how-to&quot; is the continuation of the &quot;My &apos;cheap&apos; devops stack&quot; (&lt;a href=&quot;https://danybmx.github.io/blog/blog/2018/my-cheap-devops-stack.html&quot;&gt;https://danybmx.github.io/blog/blog/2018/my-cheap-devops-stack.html&lt;/a&gt;)&lt;/p&gt;
+&lt;p&gt;In the first post of the series we saw how to install and configure a gitlab-ce with docker registry and gitlab-ci with a gitlab-ci-runner all over docker, in this second post we will se how to use AWS spot instances for run our ci jobs and s3 as cache between them.&lt;/p&gt;
+&lt;p&gt;This was done following the official git lab documentation (&lt;a href=&quot;https://docs.gitlab.com/runner/configuration/runner_autoscale_aws/)&quot;&gt;https://docs.gitlab.com/runner/configuration/runner_autoscale_aws/)&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;The code for this post was on&lt;/p&gt;
+&lt;h3&gt;First step: create an AWS account and an IAM user.&lt;/h3&gt;
+&lt;p&gt;We need an AWS account, we can create it on the AWS website (&lt;a href=&quot;https://portal.aws.amazon.com/billing/signup)&quot;&gt;https://portal.aws.amazon.com/billing/signup)&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Once we have it, we should create an access key for our account (&lt;a href=&quot;https://docs.aws.amazon.com/general/latest/gr/managing-aws-access-keys.html)&quot;&gt;https://docs.aws.amazon.com/general/latest/gr/managing-aws-access-keys.html)&lt;/a&gt;,&lt;br/&gt;I think that the best here is create a new IAM user (&lt;a href=&quot;https://console.aws.amazon.com/iam/home?#/users&quot;&gt;https://console.aws.amazon.com/iam/home?#/users&lt;/a&gt;) for our account with the permissions that gitlab needs:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;AmazonEC2FullAccess&lt;/li&gt;
+  &lt;li&gt;AmazonS3FullAccess&lt;/li&gt;
+&lt;/ul&gt;
+&lt;video src=&quot;/blog/video/posts/gitlab-ce/create-iam-user-for-gitlab-ci.mov&quot; controls&gt;
+Your browser does not support the video tag or format, video: &lt;a href=&quot;/blog/video/posts/gitlab-ce/create-iam-user-for-gitlab-ci.mov&quot; target=&quot;_blank&quot;&gt;create-iam-user-for-gitlab-ci.mov&lt;/a&gt;
+&lt;/video&gt;
+&lt;p&gt;Well, at this point we have the &lt;code&gt;Access key ID&lt;/code&gt; and his &lt;code&gt;Secret access key&lt;/code&gt; that we will use from gitlab to access to our AWS account, create the spot instance requests, manage them and also the manage S3 buckets.&lt;/p&gt;
+&lt;h3&gt;Second step: create the S3 bucket&lt;/h3&gt;
+&lt;p&gt;Go to the S3 Services on AWS (&lt;a href=&quot;https://s3.console.aws.amazon.com/s3/home?region=us-east-1&quot;&gt;https://s3.console.aws.amazon.com/s3/home?region=us-east-1&lt;/a&gt;) and create the bucket:&lt;/p&gt;
+&lt;video src=&quot;/blog/video/posts/gitlab-ce/create-s3-bucket-aws.mov&quot; controls&gt;
+Your browser does not support the video tag or format, video: &lt;a href=&quot;/blog/video/posts/gitlab-ce/create-s3-bucket-aws.mov&quot; target=&quot;_blank&quot;&gt;create-s3-bucket-aws.mov&lt;/a&gt;
+&lt;/video&gt;
+&lt;h3&gt;Third step: configure the runner to run on AWS spot instances&lt;/h3&gt;
+&lt;p&gt;We configured in the docker-compose.yml a volume for the ci_runner instance in which we have now the config.toml file of the runner that we&apos;ve created in the previous post.&lt;/p&gt;
+&lt;p&gt;Now, we should modify it to configure it for run on aws spot instances. For that you can edit the config.toml file to something like this:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;runner/config.toml&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre&gt;&lt;code&gt;concurrent = 1
+check_interval = 0
+
+[[runners]]
+  name = &amp;quot;aws&amp;quot;
+  url = &amp;quot;https://git.dpstudios.es/&amp;quot;
+  token = &amp;quot;{{RUNNER_TOKEN}}&amp;quot;
+  executor = &amp;quot;docker+machine&amp;quot;
+  limit = 1
+  [runners.docker]
+    image = &amp;quot;alpine&amp;quot;
+    privileged = true
+    disable_cache = true
+  [runners.cache]
+    Type = &amp;quot;s3&amp;quot;
+    ServerAddress = &amp;quot;s3.amazonaws.com&amp;quot;
+    AccessKey = &amp;quot;{{YOUR_AWS_IAM_USER_ACCESS_KEY}}&amp;quot;
+    SecretKey = &amp;quot;{{YOUR_AWS_IAM_USER_SECRET_KEY}}&amp;quot;
+    BucketName = &amp;quot;gitlab-ci-runners-cache&amp;quot;
+    BucketLocation = &amp;quot;{{YOUR_AMAZON_REGION}}&amp;quot;
+    Shared = true
+  [runners.machine]
+    IdleCount = 0
+    IdleTime = 600
+    MachineDriver = &amp;quot;amazonec2&amp;quot;
+    MachineName = &amp;quot;gitlab-docker-machine-%s&amp;quot;
+    OffPeakTimezone = &amp;quot;&amp;quot;
+    OffPeakIdleCount = 0
+    OffPeakIdleTime = 0
+    MachineOptions = [
+      &amp;quot;amazonec2-access-key={{YOUR_AWS_IAM_USER_ACCESS_KEY}}&amp;quot;,
+      &amp;quot;amazonec2-secret-key={{YOUR_AWS_IAM_USER_SECRET_KEY}}&amp;quot;,
+      &amp;quot;amazonec2-region={{YOUR_AMAZON_REGION}}&amp;quot;,
+      &amp;quot;amazonec2-vpc-id={{YOUR_DEFAULT_VPC_ID}}&amp;quot;,
+      &amp;quot;amazonec2-use-private-address=false&amp;quot;,
+      &amp;quot;amazonec2-tags=runner-manager-name,aws,gitlab,true,gitlab-runner-autoscale,true&amp;quot;,
+      &amp;quot;amazonec2-security-group=docker-machine-scaler&amp;quot;,
+      &amp;quot;amazonec2-instance-type=m3.medium&amp;quot;,
+      &amp;quot;amazonec2-request-spot-instance=true&amp;quot;,
+      &amp;quot;amazonec2-spot-price=0.10&amp;quot;,
+      &amp;quot;amazonec2-block-duration-minutes=60&amp;quot;
+    ]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Remember to replace all the YOUR_* &quot;variables&quot; and save the file. You can get the RUNNER_TOKEN from your current config.toml file.&lt;/p&gt;
+&lt;p&gt;The ci-runner will reload automatically your config so the next build will request an spot instance in AWS and run the configuration over it. Finally will store the cache in the AWS S3 service and thats all!&lt;/p&gt;
+&lt;p&gt;Regards!! I hope this was useful for someone!&lt;/p&gt;
+	</description>
+    </item>
     <item>
       <title>My &apos;cheap&apos; devops stack</title>
       <link>https://danybmx.github.io/blog//blog/2018/my-cheap-devops-stack.html</link>
